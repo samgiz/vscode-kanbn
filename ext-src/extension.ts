@@ -182,6 +182,38 @@ export async function activate (context: vscode.ExtensionContext): Promise<void>
     })
   )
 
+  // Register a command to open an existing kanbn task.
+  context.subscriptions.push(
+    vscode.commands.registerCommand('kanbn.openTask', async () => {
+      // If no workspace folder is opened, we can't open a task
+      if (vscode.workspace.workspaceFolders === undefined) {
+        void vscode.window.showErrorMessage('You need to open a workspace before opening a task.')
+        return
+      }
+
+      // Choose board to open a task from
+      const board = await chooseBoard()
+      if (board === undefined) return
+
+      // Set the node process directory and import kanbn
+      const kanbnTuple = boardCache.get(board)
+      if (kanbnTuple === undefined) { return }
+
+      const qp = await vscode.window.showQuickPick(
+        (await Promise.all([...await kanbnTuple.kanbn.findTrackedTasks()].map(t => kanbnTuple.kanbn.getTask(t))))
+          .map(task => ({
+            label: task.name,
+            detail: task.id,
+          }))
+      );
+      
+      if(qp?.detail){
+        // Open the task webview
+        kanbnTuple.kanbnBoardPanel.showTaskPanel(qp?.detail);
+      }
+    })
+  )
+
   // Register a command to open a burndown chart.
   context.subscriptions.push(
     vscode.commands.registerCommand('kanbn.burndown', async () => {
