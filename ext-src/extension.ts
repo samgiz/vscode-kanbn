@@ -3,7 +3,7 @@ import * as path from 'path'
 import KanbnStatusBarItem from './KanbnStatusBarItem'
 import KanbnBoardPanel from './KanbnBoardPanel'
 import KanbnBurndownPanel from './KanbnBurndownPanel'
-import { Kanbn, task } from '@basementuniverse/kanbn/src/main'
+import { Kanbn } from '@basementuniverse/kanbn/src/main'
 import * as fs from 'fs'
 
 export async function activate (context: vscode.ExtensionContext): Promise<void> {
@@ -199,34 +199,33 @@ export async function activate (context: vscode.ExtensionContext): Promise<void>
       const kanbnTuple = boardCache.get(board)
       if (kanbnTuple === undefined) { return }
 
-      const index = await kanbnTuple.kanbn.getIndex();
-      const startedColumns: string[] = index.options?.startedColumns ?? [];
-      const completedColumns: string[] = index.options?.completedColumns ?? [];
-      const otherColumns: string[] = Object.keys(index.columns).filter(c => !(startedColumns?.includes(c) || completedColumns?.includes(c)));
+      const index = await kanbnTuple.kanbn.getIndex()
+      const startedColumns: string[] = index.options?.startedColumns ?? []
+      const completedColumns: string[] = index.options?.completedColumns ?? []
+      const otherColumns: string[] = Object.keys(index.columns).filter(c => !(startedColumns?.includes(c) || completedColumns?.includes(c)))
 
       const tasksByColumns = await Promise.all([...startedColumns, ...otherColumns, ...completedColumns]
         .map(async columnName => ({
-          columnName, 
-          tasks: await Promise.all(index.columns[columnName].map(taskId => kanbnTuple.kanbn.getTask(taskId))),
-        })));
+          columnName,
+          tasks: await Promise.all(index.columns[columnName].map(async taskId => await kanbnTuple.kanbn.getTask(taskId)))
+        })))
 
       // Create QuickPickItems for each task mangled with separators for each column
       const quickPickItems: vscode.QuickPickItem[] = tasksByColumns.flatMap(column => [
         {
           kind: vscode.QuickPickItemKind.Separator,
-          label: column.columnName,
+          label: column.columnName
         },
         ...column.tasks.map(task => ({
-        label: task.name,
-        detail: task.id,
-      }))]);
+          label: task.name,
+          detail: task.id
+        }))])
 
       // Show QuickPick
-      const qp = await vscode.window.showQuickPick(quickPickItems);
-      
-      if(qp?.detail){
+      const qp = await vscode.window.showQuickPick(quickPickItems)
+      if (qp?.detail !== undefined) {
         // Open the task webview
-        kanbnTuple.kanbnBoardPanel.showTaskPanel(qp?.detail);
+        kanbnTuple.kanbnBoardPanel.showTaskPanel(qp?.detail)
       }
     })
   )
