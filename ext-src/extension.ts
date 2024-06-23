@@ -182,6 +182,54 @@ export async function activate (context: vscode.ExtensionContext): Promise<void>
     })
   )
 
+  // Register a command to open an existing kanbn task.
+  context.subscriptions.push(
+    vscode.commands.registerCommand('kanbn.openTask', async () => {
+      // If no workspace folder is opened, we can't open a task
+      if (vscode.workspace.workspaceFolders === undefined) {
+        void vscode.window.showErrorMessage('You need to open a workspace before opening a task.')
+        return
+      }
+
+      // Choose board to open a task from
+      const board = await chooseBoard()
+      if (board === undefined) return
+
+      // Set the node process directory and import kanbn
+      const kanbnTuple = boardCache.get(board)
+      if (kanbnTuple === undefined) { return }
+
+      const index = await kanbnTuple.kanbn.getIndex()
+      const startedColumns: string[] = index.options?.startedColumns ?? []
+      const completedColumns: string[] = index.options?.completedColumns ?? []
+      const otherColumns: string[] = Object.keys(index.columns).filter(c => !(startedColumns?.includes(c) || completedColumns?.includes(c)))
+
+      const tasksByColumns = await Promise.all([...startedColumns, ...otherColumns, ...completedColumns]
+        .map(async columnName => ({
+          columnName,
+          tasks: await Promise.all(index.columns[columnName].map(async taskId => await kanbnTuple.kanbn.getTask(taskId)))
+        })))
+
+      // Create QuickPickItems for each task mangled with separators for each column
+      const quickPickItems: vscode.QuickPickItem[] = tasksByColumns.flatMap(column => [
+        {
+          kind: vscode.QuickPickItemKind.Separator,
+          label: column.columnName
+        },
+        ...column.tasks.map(task => ({
+          label: task.name,
+          detail: task.id
+        }))])
+
+      // Show QuickPick
+      const qp = await vscode.window.showQuickPick(quickPickItems)
+      if (qp?.detail !== undefined) {
+        // Open the task webview
+        kanbnTuple.kanbnBoardPanel.showTaskPanel(qp?.detail)
+      }
+    })
+  )
+
   // Register a command to open a burndown chart.
   context.subscriptions.push(
     vscode.commands.registerCommand('kanbn.burndown', async () => {
