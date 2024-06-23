@@ -1,3 +1,8 @@
+# 0.14.0
+
+* New `Open Task` command to open an existing task to edit.
+* All commands now allow selecting a board even if no workspaces are open, when there are global boards configured through `Additional Boards` in User settings.
+
 # 0.13.2
 
 * Fixed issue with custom `board.css` not being loaded by the extension. The custom styles should now work in all panels.
