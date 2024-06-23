@@ -33,6 +33,12 @@ export async function activate (context: vscode.ExtensionContext): Promise<void>
   }
 
   async function chooseBoard (): Promise<string | undefined> {
+    if (boardCache.size === 0) {
+      void vscode.window.showErrorMessage(
+        'No boards detected. Open a workspace with Kanbn boards or add Additional Boards to the global user configuration'
+      )
+      return
+    }
     const boardNames: string[] = [...boardCache.keys()]
     const options: vscode.QuickPickOptions = { placeHolder: 'Select a board to open', canPickMany: false }
     const item: string | undefined = await vscode.window.showQuickPick(
@@ -142,12 +148,6 @@ export async function activate (context: vscode.ExtensionContext): Promise<void>
   // in a workspace where kanbn has already been initialised.
   context.subscriptions.push(
     vscode.commands.registerCommand('kanbn.openBoard', async () => {
-      // If no workspace folder is opened, we can't open the kanbn board
-      if (vscode.workspace.workspaceFolders === undefined) {
-        void vscode.window.showErrorMessage('You need to open a workspace before viewing the Kanbn board.')
-        return
-      }
-
       const board = await chooseBoard()
       if (board === undefined) { return }
 
@@ -163,12 +163,6 @@ export async function activate (context: vscode.ExtensionContext): Promise<void>
   // Register a command to add a new kanbn task.
   context.subscriptions.push(
     vscode.commands.registerCommand('kanbn.addTask', async () => {
-      // If no workspace folder is opened, we can't add a new task
-      if (vscode.workspace.workspaceFolders === undefined) {
-        void vscode.window.showErrorMessage('You need to open a workspace before adding a new task.')
-        return
-      }
-
       // Choose board to add task to
       const board = await chooseBoard()
       if (board === undefined) return
@@ -233,12 +227,6 @@ export async function activate (context: vscode.ExtensionContext): Promise<void>
   // Register a command to open a burndown chart.
   context.subscriptions.push(
     vscode.commands.registerCommand('kanbn.burndown', async () => {
-      // If no workspace folder is opened, we can't open the burndown chart
-      if (vscode.workspace.workspaceFolders === undefined) {
-        void vscode.window.showErrorMessage('You need to open a workspace before viewing the burndown chart.')
-        return
-      }
-
       const board = await chooseBoard()
       if (board === undefined) return
 
@@ -255,12 +243,6 @@ export async function activate (context: vscode.ExtensionContext): Promise<void>
   // Register a command to archive tasks.
   context.subscriptions.push(
     vscode.commands.registerCommand('kanbn.archiveTasks', async () => {
-      // If no workspace folder is opened, we can't archive tasks
-      if (vscode.workspace.workspaceFolders === undefined) {
-        void vscode.window.showErrorMessage('You need to open a workspace before sending tasks to the archive.')
-        return
-      }
-
       const board = await chooseBoard()
       if (board === undefined) return
 
@@ -303,12 +285,6 @@ export async function activate (context: vscode.ExtensionContext): Promise<void>
   // Register a command to restore a task from the archive.
   context.subscriptions.push(
     vscode.commands.registerCommand('kanbn.restoreTasks', async () => {
-      // If no workspace folder is opened, we can't restore tasks from the archive
-      if (vscode.workspace.workspaceFolders === undefined) {
-        void vscode.window.showErrorMessage('You need to open a workspace before restoring tasks from the archive.')
-        return
-      }
-
       const board = await chooseBoard()
       if (board === undefined) return
       const kanbnTuple = boardCache.get(board)
