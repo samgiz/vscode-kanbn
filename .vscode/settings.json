@@ -12,5 +12,6 @@
     "typescript",
     "typescriptreact"
   ],
-  "cmake.configureOnOpen": false
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "dbaeumer.vscode-eslint"
 }
