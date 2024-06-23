@@ -61,6 +61,11 @@
         "category": "Kanbn"
       },
       {
+        "command": "kanbn.openTask",
+        "title": "Open task",
+        "category": "Kanbn"
+      },
+      {
         "command": "kanbn.burndown",
         "title": "Open burndown chart",
         "category": "Kanbn"
