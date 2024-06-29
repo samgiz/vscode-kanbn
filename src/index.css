@@ -124,13 +124,14 @@ Board styles
     float: right;
     outline: none;
     border: 1px transparent solid;
-    background-color: transparent;
+    background-color: var(--vscode-button-hoverBackground);
     color: var(--vscode-button-foreground);
     padding: 2px;
     height: 16px;
     width: 16px;
     margin-right: 8px;
     border-radius: 1px;
+    cursor: pointer;
 }
 
 .kanbn-column-button .codicon {
