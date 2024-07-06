@@ -1,3 +1,7 @@
+# 0.14.1
+
+Fix to the colour scheme of butttons on light themes: [#25](https://github.com/samgiz/vscode-kanbn/pull/25).
+
 # 0.14.0
 
 * New `Open Task` command to open an existing task to edit.
