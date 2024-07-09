@@ -185,7 +185,7 @@ export default class KanbnTaskPanel {
               }
             }
             this._taskId = message.taskData.id as string
-            this._panel.title = this._taskId
+            this._panel.title = message.taskData.name
             return
 
           // Delete a task and close the webview panel
