@@ -1,7 +1,7 @@
 import * as path from 'path'
 import * as vscode from 'vscode'
 import getNonce from './getNonce'
-import { Kanbn } from '@basementuniverse/kanbn/src/main'
+import { Kanbn } from '@samgiz/kanbn/src/main'
 
 function transformTaskData (
   taskData: any,

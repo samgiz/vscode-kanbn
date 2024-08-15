@@ -3,7 +3,7 @@ import * as vscode from 'vscode'
 import getNonce from './getNonce'
 import KanbnTaskPanel from './KanbnTaskPanel'
 import KanbnBurndownPanel from './KanbnBurndownPanel'
-import { Kanbn } from '@basementuniverse/kanbn/src/main'
+import { Kanbn } from '@samgiz/kanbn/src/main'
 
 const sortByFields: Record<string, string> = {
   Name: 'name',

@@ -2,7 +2,7 @@
 
 The Kanbn board has a default style which is based on the current vscode theme, however you can override this by creating a CSS file called `board.css` inside the Kanbn directory (by default this is `.kanbn/`). A reference of class names is provided below.
 
-You can view the default stylesheet [here](https://github.com/basementuniverse/vscode-kanbn/blob/main/src/index.css).
+You can view the default stylesheet [here](https://github.com/samgiz/vscode-kanbn/blob/main/src/index.css).
 
 Visual Studio Code will add `vscode-light`, `vscode-dark` and `vscode-high-contrast` class names to the `body` tag, depending on the current theme.
 
@@ -204,4 +204,4 @@ Here's an example of a task card style using some of the above features:
 
 ### Syntax highlighting
 
-See [index.css](https://github.com/basementuniverse/vscode-kanbn/blob/main/src/index.css) for built-in syntax highlighting styles and token class-names.
+See [index.css](https://github.com/samgiz/vscode-kanbn/blob/main/src/index.css) for built-in syntax highlighting styles and token class-names.

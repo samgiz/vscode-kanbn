@@ -2,7 +2,7 @@
 import { DragDropContext, Droppable } from 'react-beautiful-dnd'
 import React, { useState, useCallback, useEffect } from 'react'
 import TaskItem from './TaskItem'
-import { paramCase } from '@basementuniverse/kanbn/src/utility'
+import { paramCase } from '@samgiz/kanbn/src/utility'
 import vscode from './vscode'
 import formatDate from 'dateformat'
 

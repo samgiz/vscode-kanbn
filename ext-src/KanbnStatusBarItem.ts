@@ -1,4 +1,4 @@
-import { Kanbn } from '@basementuniverse/kanbn/src/main'
+import { Kanbn } from '@samgiz/kanbn/src/main'
 import * as vscode from 'vscode'
 
 export default class KanbnStatusBarItem {
