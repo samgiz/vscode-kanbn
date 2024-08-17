@@ -1,7 +1,7 @@
 import * as path from "path"
 import * as vscode from "vscode"
 import getNonce from "./getNonce"
-import { Kanbn } from "@samgiz/kanbn/src/main"
+import { Kanbn, index as kanbn_index } from "@samgiz/kanbn/src/main"
 
 export default class KanbnBurndownPanel {
   private static readonly viewType = "react"
@@ -46,7 +46,7 @@ export default class KanbnBurndownPanel {
         ],
       }
     )
-    ;(this._panel as any).iconPath = {
+    this._panel.iconPath = {
       light: vscode.Uri.file(path.join(this._extensionPath, "resources", "burndown_light.svg")),
       dark: vscode.Uri.file(path.join(this._extensionPath, "resources", "burndown_dark.svg")),
     }
@@ -105,7 +105,7 @@ export default class KanbnBurndownPanel {
   }
 
   public async update(): Promise<void> {
-    let index: any
+    let index: kanbn_index
     try {
       index = await this._kanbn.getIndex()
     } catch (error) {

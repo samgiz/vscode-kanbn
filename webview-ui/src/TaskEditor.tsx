@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-misused-promises */
-/* eslint-disable @typescript-eslint/restrict-template-expressions */
-/* eslint-disable @typescript-eslint/strict-boolean-expressions */
 import React, { useEffect, useState, useCallback } from "react"
 import { useForm, useFieldArray, useWatch } from "react-hook-form"
 import formatDate from "dateformat"
@@ -15,7 +12,7 @@ import "katex/dist/katex.min.css"
 
 const Markdown = (props): JSX.Element => {
   const components = {
-    code({ node, inline, className, children, ...props }) {
+    code({ inline, className, children, ...props }) {
       const match = /language-(\w+)/.exec(className ?? "")
       return inline !== false && match != null ? (
         <SyntaxHighlighter
@@ -53,12 +50,12 @@ const EditableMarkdown = ({
   multiline,
   markdownClassnames,
   inputClassnames,
-  inputId,
-  defaultValue,
-}: any): JSX.Element => {
+  inputId = "",
+  defaultValue = "",
+}): JSX.Element => {
   const { register, watch } = formMethods
   const [isFocused, setIsFocused] = useState(false)
-  const markdown = watch(inputName, defaultValue ?? "")
+  const markdown = watch(inputName, defaultValue)
 
   const handleFocus = (): void => {
     setIsFocused(true)
@@ -100,7 +97,7 @@ const EditableMarkdown = ({
 interface CustomField {
   name: string
   type: string
-  value: any
+  value
 }
 
 interface SubTask {
@@ -657,7 +654,7 @@ const TaskEditor = (): JSX.Element => {
                 ></div>
               </label>
             </div>
-            {customFields.map((customField: any, index) => (
+            {customFields.map((customField, index) => (
               <div
                 key={customField.id}
                 className={[
@@ -693,7 +690,7 @@ const TaskEditor = (): JSX.Element => {
                 <p>Tags</p>
               </label>
               <div>
-                {tagFields.map((tag: any, index) => (
+                {tagFields.map((tag, index) => (
                   <div className="kanbn-task-editor-row kanbn-task-editor-row-tag" key={index}>
                     <div className="kanbn-task-editor-column kanbn-task-editor-field-tag">
                       {/* TODO: fix this. I would expect tags to be selectable from a list specified for the particular board. */}

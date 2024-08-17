@@ -1,13 +1,12 @@
 import * as path from "path"
 import * as vscode from "vscode"
 import getNonce from "./getNonce"
-import { Kanbn } from "@samgiz/kanbn/src/main"
+import { Kanbn, task as kanbn_task, index as kanbn_index } from "@samgiz/kanbn/src/main"
 
-function transformTaskData(
-  taskData: any,
-  customFields: Array<{ name: string; type: "boolean" | "date" | "number" | "string" }>
-): any {
-  const result = {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function transformTaskData(taskData: any): any {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const result: any = {
     id: taskData.id,
     name: taskData.name,
     description: taskData.description,
@@ -16,12 +15,12 @@ function transformTaskData(
       updated: new Date(),
       assigned: taskData.assignedTo,
       progress: Number(taskData.progress),
-      tags: taskData.tags.map((tag: any) => tag.tag),
-    } as any,
+      tags: taskData.tags.map((tag) => tag.tag),
+    },
     relations: taskData.relations ?? [],
     subTasks: taskData.subTasks ?? [],
     comments: taskData.comments ?? [],
-  } as any
+  }
   for (const comment of result.comments) {
     comment.date = new Date(comment.date)
   }
@@ -58,16 +57,13 @@ function transformTaskData(
         !(result.metadata[customField.name] instanceof Date) ||
         isNaN(result.metadata[customField.name].getTime())
       ) {
-        // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
         delete result.metadata[customField.name]
       }
     }
     if (customField.type === "boolean" && customField.value === false) {
-      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
       delete result.metadata[customField.name]
     }
     if (customField.type === "number" && customField.value === "") {
-      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
       delete result.metadata[customField.name]
     }
   }
@@ -124,12 +120,12 @@ export default class KanbnTaskPanel {
     })
 
     if (this._taskId !== null) {
-      this._panel.onDidDispose((e) => {
+      this._panel.onDidDispose(() => {
         if (this._taskId !== null) taskCache.delete(this._taskId)
       })
     }
 
-    ;(this._panel as any).iconPath = {
+    this._panel.iconPath = {
       light: vscode.Uri.file(path.join(this._extensionPath, "resources", "task_light.svg")),
       dark: vscode.Uri.file(path.join(this._extensionPath, "resources", "task_dark.svg")),
     }
@@ -166,10 +162,10 @@ export default class KanbnTaskPanel {
           case "kanbn.updateOrCreate":
             if (this._taskId === null) {
               await this._kanbn.createTask(
-                transformTaskData(message.taskData, message.customFields),
+                transformTaskData(message.taskData),
                 message.taskData.column
               )
-              this._panel.onDidDispose((e) => {
+              this._panel.onDidDispose(() => {
                 if (this._taskId !== null) taskCache.delete(this._taskId)
               })
               taskCache.set(message.taskData.id, this)
@@ -186,7 +182,7 @@ export default class KanbnTaskPanel {
             } else {
               await this._kanbn.updateTask(
                 this._taskId,
-                transformTaskData(message.taskData, message.customFields),
+                transformTaskData(message.taskData),
                 message.taskData.column
               )
               if (this._taskId !== message.taskData.id) {
@@ -263,8 +259,9 @@ export default class KanbnTaskPanel {
     }
   }
 
-  private async _getTaskData(): Promise<any> {
-    let index: any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private async _getTaskData(): Promise<null | any> {
+    let index: kanbn_index
     try {
       index = await this._kanbn.getIndex()
     } catch (error) {
@@ -273,9 +270,9 @@ export default class KanbnTaskPanel {
       } else {
         throw error
       }
-      return
+      return null
     }
-    let tasks: any[]
+    let tasks: kanbn_task[]
     try {
       tasks = (await this._kanbn.loadAllTrackedTasks(index)).map((task) => ({
         ...this._kanbn.hydrateTask(index, task),
@@ -286,9 +283,9 @@ export default class KanbnTaskPanel {
       } else {
         throw error
       }
-      return
+      return null
     }
-    let task: any = null
+    let task: kanbn_task | null = null
     if (this._taskId !== null) {
       task = tasks.find((t) => t.id === this._taskId) ?? null
     }

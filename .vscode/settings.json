@@ -7,7 +7,9 @@
     "out": true // set this to false to include "out" folder in search results
   },
   "typescript.tsc.autoDetect": "off",
-  "eslint.validate": ["typescript", "typescriptreact"],
   "editor.formatOnSave": true,
-  "editor.defaultFormatter": "esbenp.prettier-vscode"
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "always"
+  }
 }

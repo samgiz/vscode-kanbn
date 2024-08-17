@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/restrict-template-expressions */
 import { DragDropContext, Droppable } from "react-beautiful-dnd"
 import React, { useState, useCallback, useEffect } from "react"
 import TaskItem from "./TaskItem"
@@ -6,8 +5,7 @@ import { paramCase } from "@samgiz/kanbn/src/utility"
 import vscode from "./vscode"
 import formatDate from "dateformat"
 
-const zip = (a: any[], b: any[]): Array<[any, any]> =>
-  a.map((v: any, i: number): [any, any] => [v, b[i]])
+const zip = (a, b) => a.map((v, i) => [v, b[i]])
 
 // Called when a task item has finished being dragged
 const onDragEnd = (result, columns, setColumns): void => {
@@ -190,6 +188,7 @@ function Board(): JSX.Element {
   )
 
   const processMessage = useCallback((event) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const newState: any = {}
     const tasks = Object.fromEntries((event.data.tasks ?? []).map((task) => [task.id, task]))
 
@@ -345,6 +344,7 @@ function Board(): JSX.Element {
                     <i className="codicon codicon-check"></i>
                   )}
                   {columnName}
+                  {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                   <span className="kanbn-column-count">{(column as any).length}</span>
                   <button
                     type="button"
@@ -399,6 +399,7 @@ function Board(): JSX.Element {
                             .filter((i) => i)
                             .join(" ")}
                         >
+                          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                           {(column as any)
                             .filter((task) => filterTask(task, taskFilter, state.customFields))
                             .map((task, position) => (

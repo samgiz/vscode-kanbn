@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from "react"
+import { useState, useRef, useEffect, useCallback } from "react"
 import {
   ResponsiveContainer,
   LineChart,
@@ -26,6 +26,7 @@ const Burndown = (): JSX.Element => {
     }
   )
   const processMessage = useCallback((event) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const newState: any = {}
     newState.name = event.data.index.name
     newState.sprints = "sprints" in event.data.index.options ? event.data.index.options.sprints : []

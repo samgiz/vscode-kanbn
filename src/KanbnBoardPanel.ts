@@ -3,8 +3,7 @@ import * as vscode from "vscode"
 import getNonce from "./getNonce"
 import KanbnTaskPanel from "./KanbnTaskPanel"
 import KanbnBurndownPanel from "./KanbnBurndownPanel"
-import { Kanbn } from "@samgiz/kanbn/src/main"
-import * as fs from "fs"
+import { Kanbn, index as kanbn_index, task as kanbn_task } from "@samgiz/kanbn/src/main"
 
 const sortByFields: Record<string, string> = {
   Name: "name",
@@ -62,7 +61,7 @@ export default class KanbnBoardPanel {
   }
 
   public async update(): Promise<void> {
-    let index: any
+    let index: kanbn_index
     try {
       index = await this._kanbn.getIndex()
     } catch (error) {
@@ -73,7 +72,7 @@ export default class KanbnBoardPanel {
       }
       return
     }
-    let tasks: any[]
+    let tasks: kanbn_task[]
     try {
       tasks = (await this._kanbn.loadAllTrackedTasks(index)).map((task) =>
         this._kanbn.hydrateTask(index, task)
@@ -122,7 +121,7 @@ export default class KanbnBoardPanel {
         ],
       }
     )
-    ;(this._panel as any).iconPath = {
+    this._panel.iconPath = {
       light: vscode.Uri.file(path.join(this._extensionPath, "resources", "project_light.svg")),
       dark: vscode.Uri.file(path.join(this._extensionPath, "resources", "project_dark.svg")),
     }
@@ -277,7 +276,6 @@ export default class KanbnBoardPanel {
   }
 
   private _getHtmlForWebview(): string {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
     if (this._panel === null) {
       throw new Error("panel is undefined")
     }

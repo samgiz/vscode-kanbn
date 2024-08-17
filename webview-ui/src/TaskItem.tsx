@@ -1,4 +1,3 @@
-import React from "react"
 import { Draggable } from "react-beautiful-dnd"
 import formatDate from "dateformat"
 import { paramCase } from "@samgiz/kanbn/src/utility"

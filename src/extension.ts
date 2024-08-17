@@ -282,7 +282,9 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
       let tasks: string[] = []
       try {
         tasks = [...(await kanbnTuple.kanbn.findTrackedTasks())]
-      } catch (e) {}
+      } catch (e) {
+        console.log(e)
+      }
       if (tasks.length === 0) {
         void vscode.window.showInformationMessage("There are no tasks to archive.")
         return
@@ -322,7 +324,9 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
       let archivedTasks: string[] = []
       try {
         archivedTasks = await kanbnTuple.kanbn.listArchivedTasks()
-      } catch (e) {}
+      } catch (e) {
+        console.log(e)
+      }
       if (archivedTasks.length === 0) {
         void vscode.window.showInformationMessage("There are no archived tasks to restore.")
         return
@@ -364,7 +368,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   )
 
   // Handle configuration changes.
-  vscode.workspace.onDidChangeConfiguration((e) => {
+  vscode.workspace.onDidChangeConfiguration(() => {
     populateBoardCache()
     // Update all board panels in case we need to show/hide certain buttons.
     for (const [, kanbnTuple] of boardCache) {
