@@ -1,10 +1,10 @@
-import * as path from 'path'
-import * as vscode from 'vscode'
-import getNonce from './getNonce'
-import { Kanbn } from '@samgiz/kanbn/src/main'
+import * as path from "path"
+import * as vscode from "vscode"
+import getNonce from "./getNonce"
+import { Kanbn } from "@samgiz/kanbn/src/main"
 
 export default class KanbnBurndownPanel {
-  private static readonly viewType = 'react'
+  private static readonly viewType = "react"
 
   private readonly column: vscode.ViewColumn
   private readonly _extensionPath: string
@@ -13,11 +13,11 @@ export default class KanbnBurndownPanel {
   private readonly _kanbnFolderName: string
   private _panel: vscode.WebviewPanel | null = null
   private sprintMode: boolean = true
-  private sprint: string = ''
-  private startDate: string = ''
-  private endDate: string = ''
+  private sprint: string = ""
+  private startDate: string = ""
+  private endDate: string = ""
 
-  public show (): void {
+  public show(): void {
     if (this._panel === null) {
       this.setUpPanel()
     }
@@ -25,23 +25,30 @@ export default class KanbnBurndownPanel {
     void this.update()
   }
 
-  private setUpPanel (): void {
+  private setUpPanel(): void {
     // Create and show a new webview panel
-    this._panel = vscode.window.createWebviewPanel(KanbnBurndownPanel.viewType, 'Burndown Chart', this.column, {
-      // Enable javascript in the webview
-      enableScripts: true,
+    this._panel = vscode.window.createWebviewPanel(
+      KanbnBurndownPanel.viewType,
+      "Burndown Chart",
+      this.column,
+      {
+        // Enable javascript in the webview
+        enableScripts: true,
 
-      // Restrict the webview to only loading content from allowed paths
-      localResourceRoots: [
-        vscode.Uri.file(path.join(this._extensionPath, 'out')),
-        vscode.Uri.file(path.join(this._extensionPath, 'webview-ui', 'out')),
-        vscode.Uri.file(path.join(this._kanbnFolderName, '.kanbn')),
-        vscode.Uri.file(path.join(this._extensionPath, 'node_modules', '@vscode/codicons', 'dist'))
-      ]
-    });
-    (this._panel as any).iconPath = {
-      light: vscode.Uri.file(path.join(this._extensionPath, 'resources', 'burndown_light.svg')),
-      dark: vscode.Uri.file(path.join(this._extensionPath, 'resources', 'burndown_dark.svg'))
+        // Restrict the webview to only loading content from allowed paths
+        localResourceRoots: [
+          vscode.Uri.file(path.join(this._extensionPath, "out")),
+          vscode.Uri.file(path.join(this._extensionPath, "webview-ui", "out")),
+          vscode.Uri.file(path.join(this._kanbnFolderName, ".kanbn")),
+          vscode.Uri.file(
+            path.join(this._extensionPath, "node_modules", "@vscode/codicons", "dist")
+          ),
+        ],
+      }
+    )
+    ;(this._panel as any).iconPath = {
+      light: vscode.Uri.file(path.join(this._extensionPath, "resources", "burndown_light.svg")),
+      dark: vscode.Uri.file(path.join(this._extensionPath, "resources", "burndown_dark.svg")),
     }
 
     // Set the webview's title to the kanbn project name
@@ -54,38 +61,40 @@ export default class KanbnBurndownPanel {
 
     // Listen for when the panel is disposed
     // This happens when the user closes the panel or when the panel is closed programatically
-    this._panel.onDidDispose(() => { this._panel = null })
+    this._panel.onDidDispose(() => {
+      this._panel = null
+    })
 
     // Handle messages from the webview
-    this._panel.webview.onDidReceiveMessage(
-      async (message) => {
-        switch (message.command) {
-          // Display error message
-          case 'error':
-            void vscode.window.showErrorMessage(message.text)
-            return
+    this._panel.webview.onDidReceiveMessage(async (message) => {
+      switch (message.command) {
+        // Display error message
+        case "error":
+          void vscode.window.showErrorMessage(message.text)
+          return
 
-          // Refresh the kanbn chart
-          case 'kanbn.refreshBurndownData':
-            this.sprintMode = message.sprintMode
-            this.sprint = message.sprint
-            this.startDate = message.startDate
-            this.endDate = message.endDate
-            void this.update()
-            break
-          case 'kanbn.updateMe':
-            void this.update()
-        }
-      })
+        // Refresh the kanbn chart
+        case "kanbn.refreshBurndownData":
+          this.sprintMode = message.sprintMode
+          this.sprint = message.sprint
+          this.startDate = message.startDate
+          this.endDate = message.endDate
+          void this.update()
+          break
+        case "kanbn.updateMe":
+          void this.update()
+      }
+    })
   }
 
-  public static create (
+  public static create(
     extensionPath: string,
     workspacePath: string,
     kanbn: Kanbn,
     kanbnFolderName: string
   ): KanbnBurndownPanel {
-    const column = (vscode.window.activeTextEditor != null) ? vscode.window.activeTextEditor.viewColumn : undefined
+    const column =
+      vscode.window.activeTextEditor != null ? vscode.window.activeTextEditor.viewColumn : undefined
     return new KanbnBurndownPanel(
       extensionPath,
       workspacePath,
@@ -95,7 +104,7 @@ export default class KanbnBurndownPanel {
     )
   }
 
-  public async update (): Promise<void> {
+  public async update(): Promise<void> {
     let index: any
     try {
       index = await this._kanbn.getIndex()
@@ -109,32 +118,23 @@ export default class KanbnBurndownPanel {
     }
     if (this._panel != null) {
       void this._panel.webview.postMessage({
-        type: 'burndown',
+        type: "burndown",
         index,
         dateFormat: this._kanbn.getDateFormat(index),
         burndownData: await this._kanbn.burndown(
-          (this.sprintMode && this.sprint !== '')
-            ? [this.sprint]
-            : null,
-          (
-            !this.sprintMode &&
-            this.startDate !== '' &&
-            this.endDate !== ''
-          )
-            ? [
-                new Date(Date.parse(this.startDate)),
-                new Date(Date.parse(this.endDate))
-              ]
+          this.sprintMode && this.sprint !== "" ? [this.sprint] : null,
+          !this.sprintMode && this.startDate !== "" && this.endDate !== ""
+            ? [new Date(Date.parse(this.startDate)), new Date(Date.parse(this.endDate))]
             : null,
           null,
           null,
-          'auto'
-        )
+          "auto"
+        ),
       })
     }
   }
 
-  private constructor (
+  private constructor(
     extensionPath: string,
     workspacePath: string,
     column: vscode.ViewColumn,
@@ -148,25 +148,30 @@ export default class KanbnBurndownPanel {
     this.column = column
   }
 
-  private _getHtmlForWebview (): string {
+  private _getHtmlForWebview(): string {
     if (this._panel === null) {
-      throw new Error('panel is undefined')
+      throw new Error("panel is undefined")
     }
     const webview = this._panel.webview
-    const scriptUri = webview.asWebviewUri(vscode.Uri.file(path.join(this._extensionPath, 'webview-ui', 'out', 'assets', 'index.js')))
+    const scriptUri = webview.asWebviewUri(
+      vscode.Uri.file(path.join(this._extensionPath, "webview-ui", "out", "assets", "index.js"))
+    )
 
-    const styleUri = webview.asWebviewUri(vscode.Uri.file(path.join(this._extensionPath, 'webview-ui', 'out', 'assets', 'index.css')))
+    const styleUri = webview.asWebviewUri(
+      vscode.Uri.file(path.join(this._extensionPath, "webview-ui", "out", "assets", "index.css"))
+    )
 
-    const customStyleUri = webview.asWebviewUri(vscode.Uri.file(
-      path.join(this._kanbnFolderName, '.kanbn', 'board.css')
-    ))
-    const codiconsUri = webview.asWebviewUri(vscode.Uri.file(
-      path.join(this._extensionPath, 'node_modules', '@vscode/codicons', 'dist', 'codicon.css')
-    ))
+    const customStyleUri = webview.asWebviewUri(
+      vscode.Uri.file(path.join(this._kanbnFolderName, ".kanbn", "board.css"))
+    )
+    const codiconsUri = webview.asWebviewUri(
+      vscode.Uri.file(
+        path.join(this._extensionPath, "node_modules", "@vscode/codicons", "dist", "codicon.css")
+      )
+    )
 
     // Use a nonce to whitelist which scripts can be run
     const nonce = getNonce()
-
 
     return `<!DOCTYPE html>
 <html lang="en">
@@ -179,7 +184,9 @@ export default class KanbnBurndownPanel {
 <link rel="stylesheet" type="text/css" href="${customStyleUri.toString()}">
 <link rel="stylesheet" type="text/css" href="${codiconsUri.toString()}">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src vscode-webview-resource: https:; script-src 'nonce-${nonce}'; font-src vscode-webview-resource:; style-src vscode-webview-resource: 'unsafe-inline' http: https: data:;">
-<base href="${webview.asWebviewUri(vscode.Uri.file(path.join(this._extensionPath, 'out'))).toString()}/">
+<base href="${webview
+      .asWebviewUri(vscode.Uri.file(path.join(this._extensionPath, "out")))
+      .toString()}/">
 </head>
 <body>
 <noscript>You need to enable JavaScript to run this app.</noscript>
