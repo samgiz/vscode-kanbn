@@ -1,3 +1,8 @@
+# 0.14.2
+
+* Changed task panel titles to use the task name instead of id [#26](https://github.com/samgiz/vscode-kanbn/pull/26).
+* Greatly reduced number of dependencies in the project.
+
 # 0.14.1
 
 Fix to the colour scheme of butttons on light themes: [#25](https://github.com/samgiz/vscode-kanbn/pull/25).

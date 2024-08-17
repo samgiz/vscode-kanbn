@@ -1,28 +1,13 @@
 {
   "compilerOptions": {
+    "module": "commonjs",
     "target": "es6",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
+    "outDir": "out",
+    "lib": ["es6", "dom"],
+    "sourceMap": true,
+    "rootDir": "src",
     "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "module": "esnext",
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    "jsx": "react-jsx",
-    "noImplicitAny": false,
-    "noFallthroughCasesInSwitch": true
+    "noImplicitAny": false
   },
-  "include": [
-    "src",
-    "ext-src"
-  ]
+  "exclude": ["node_modules", "webview-ui"]
 }

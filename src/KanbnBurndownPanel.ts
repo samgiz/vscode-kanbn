@@ -33,9 +33,10 @@ export default class KanbnBurndownPanel {
 
       // Restrict the webview to only loading content from allowed paths
       localResourceRoots: [
-        vscode.Uri.file(path.join(this._extensionPath, 'build')),
+        vscode.Uri.file(path.join(this._extensionPath, 'out')),
+        vscode.Uri.file(path.join(this._extensionPath, 'webview-ui', 'out')),
         vscode.Uri.file(path.join(this._kanbnFolderName, '.kanbn')),
-        vscode.Uri.file(path.join(this._extensionPath, 'node_modules', 'vscode-codicons', 'dist'))
+        vscode.Uri.file(path.join(this._extensionPath, 'node_modules', '@vscode/codicons', 'dist'))
       ]
     });
     (this._panel as any).iconPath = {
@@ -148,27 +149,24 @@ export default class KanbnBurndownPanel {
   }
 
   private _getHtmlForWebview (): string {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const manifest = require(path.join(this._extensionPath, 'build', 'asset-manifest.json'))
-    const mainScript = manifest.files['main.js']
-    const mainStyle = manifest.files['main.css']
     if (this._panel === null) {
       throw new Error('panel is undefined')
     }
     const webview = this._panel.webview
-    const scriptUri = webview.asWebviewUri(vscode.Uri.file(path.join(this._extensionPath, 'build', mainScript)))
+    const scriptUri = webview.asWebviewUri(vscode.Uri.file(path.join(this._extensionPath, 'webview-ui', 'out', 'assets', 'index.js')))
 
-    const styleUri = webview.asWebviewUri(vscode.Uri.file(path.join(this._extensionPath, 'build', mainStyle)))
+    const styleUri = webview.asWebviewUri(vscode.Uri.file(path.join(this._extensionPath, 'webview-ui', 'out', 'assets', 'index.css')))
 
     const customStyleUri = webview.asWebviewUri(vscode.Uri.file(
       path.join(this._kanbnFolderName, '.kanbn', 'board.css')
     ))
     const codiconsUri = webview.asWebviewUri(vscode.Uri.file(
-      path.join(this._extensionPath, 'node_modules', 'vscode-codicons', 'dist', 'codicon.css')
+      path.join(this._extensionPath, 'node_modules', '@vscode/codicons', 'dist', 'codicon.css')
     ))
 
     // Use a nonce to whitelist which scripts can be run
     const nonce = getNonce()
+
 
     return `<!DOCTYPE html>
 <html lang="en">
@@ -181,7 +179,7 @@ export default class KanbnBurndownPanel {
 <link rel="stylesheet" type="text/css" href="${customStyleUri.toString()}">
 <link rel="stylesheet" type="text/css" href="${codiconsUri.toString()}">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src vscode-webview-resource: https:; script-src 'nonce-${nonce}'; font-src vscode-webview-resource:; style-src vscode-webview-resource: 'unsafe-inline' http: https: data:;">
-<base href="${webview.asWebviewUri(vscode.Uri.file(path.join(this._extensionPath, 'build'))).toString()}/">
+<base href="${webview.asWebviewUri(vscode.Uri.file(path.join(this._extensionPath, 'out'))).toString()}/">
 </head>
 <body>
 <noscript>You need to enable JavaScript to run this app.</noscript>

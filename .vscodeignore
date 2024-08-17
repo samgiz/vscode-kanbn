@@ -1,6 +1,6 @@
 .github/**
 .vscode/**
-build/**/*.js.map
+out/**/*.js.map
 ext-src/**
 public/**
 scripts/**
