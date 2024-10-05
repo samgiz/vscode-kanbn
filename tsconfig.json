@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "node16",
     "target": "es6",
     "outDir": "out",
     "lib": ["es6", "dom"],
@@ -9,5 +9,5 @@
     "strict": true,
     "noImplicitAny": false
   },
-  "exclude": ["node_modules", "webview-ui"]
+  "include": ["src/**/*.ts"]
 }

@@ -281,10 +281,10 @@ export default class KanbnBoardPanel {
     }
     const webview = this._panel.webview
     const scriptUri = webview.asWebviewUri(
-      vscode.Uri.file(path.join(this._extensionPath, "webview-ui", "out", "assets", "index.js"))
+      vscode.Uri.file(path.join(this._extensionPath, "webview-ui", "out", "index.js"))
     )
     const styleUri = webview.asWebviewUri(
-      vscode.Uri.file(path.join(this._extensionPath, "webview-ui", "out", "assets", "index.css"))
+      vscode.Uri.file(path.join(this._extensionPath, "webview-ui", "out", "index.css"))
     )
 
     const customStyleUri = webview.asWebviewUri(

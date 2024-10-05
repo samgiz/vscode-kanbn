@@ -12,6 +12,6 @@ export default [
     },
   },
   {
-    files: ["**/*.ts", "**/*.cts", "**.*.mts"],
+    files: ["**/*.ts", "**/*.cts", "**.*.mts", "**.*.tsx"],
   },
 ]

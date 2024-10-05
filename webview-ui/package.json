@@ -3,9 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "start": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview"
+    "build": "tsx build.ts"
   },
   "dependencies": {
     "dateformat": "5.0.3",
@@ -22,13 +20,14 @@
   },
   "devDependencies": {
     "@types/dateformat": "5.0.2",
+    "@types/node": "^22.7.4",
     "@types/react": "18.3.3",
     "@types/react-beautiful-dnd": "^13.1.8",
     "@types/react-dom": "18.3.0",
     "@types/react-syntax-highlighter": "15.5.13",
     "@types/vscode-webview": "1.57.5",
-    "@vitejs/plugin-react": "4.3.1",
-    "typescript": "5.5.4",
-    "vite": "5.4.1"
+    "esbuild": "0.24.0",
+    "tsx": "^4.19.1",
+    "typescript": "5.5.4"
   }
 }
