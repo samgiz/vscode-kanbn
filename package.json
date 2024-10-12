@@ -125,9 +125,8 @@
   },
   "scripts": {
     "install:all": "npm install && npm install --prefix webview-ui",
-    "build": "npm run build --prefix webview-ui && tsx build.ts",
-    "build:prod": "cross-env NODE_ENV=production npm run build",
-    "build:dev": "cross-env NODE_ENV=development npm run build",
+    "build:prod": "tsc --noEmit && cross-env NODE_ENV=production npm run build:prod --prefix webview-ui && tsx build.ts",
+    "build:dev": "cross-env NODE_ENV=development npm run build:dev --prefix webview-ui && tsx build.ts",
     "package": "npm run build:prod && vsce package",
     "publish:vscode": "npm run build:prod && vsce publish",
     "publish:openvsx": "npm run build:prod && ovsx publish",
