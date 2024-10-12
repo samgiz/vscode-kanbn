@@ -1,12 +1,11 @@
-/* eslint-disable @typescript-eslint/restrict-template-expressions */
-import { DragDropContext, Droppable } from 'react-beautiful-dnd'
-import React, { useState, useCallback, useEffect } from 'react'
-import TaskItem from './TaskItem'
-import { paramCase } from '@basementuniverse/kanbn/src/utility'
-import vscode from './vscode'
-import formatDate from 'dateformat'
+import { DragDropContext, Droppable } from "react-beautiful-dnd"
+import React, { useState, useCallback, useEffect } from "react"
+import TaskItem from "./TaskItem"
+import { paramCase } from "@samgiz/kanbn/src/utility"
+import vscode from "./vscode"
+import formatDate from "dateformat"
 
-const zip = (a: any[], b: any[]): Array<[any, any]> => a.map((v: any, i: number): [any, any] => [v, b[i]])
+const zip = (a, b) => a.map((v, i) => [v, b[i]])
 
 // Called when a task item has finished being dragged
 const onDragEnd = (result, columns, setColumns): void => {
@@ -24,77 +23,69 @@ const onDragEnd = (result, columns, setColumns): void => {
   // The task was dragged from one column to another
   if (source.droppableId !== destination.droppableId) {
     const sourceItems = columns[source.droppableId]
-    const destItems = columns[destination.droppableId];
-    [removed] = sourceItems.splice(source.index, 1)
+    const destItems = columns[destination.droppableId]
+    ;[removed] = sourceItems.splice(source.index, 1)
     destItems.splice(destination.index, 0, removed)
     setColumns({
       ...columns,
       [source.droppableId]: sourceItems,
-      [destination.droppableId]: destItems
+      [destination.droppableId]: destItems,
     })
 
-  // The task was dragged into the same column
+    // The task was dragged into the same column
   } else {
     // If the task was dragged to the same position that it currently occupies, don't move it (this will
     // prevent unnecessarily setting the task's updated date)
     if (source.index === destination.index) {
       return
     }
-    const copiedItems = columns[source.droppableId];
-    [removed] = copiedItems.splice(source.index, 1)
+    const copiedItems = columns[source.droppableId]
+    ;[removed] = copiedItems.splice(source.index, 1)
     copiedItems.splice(destination.index, 0, removed)
     setColumns({
       ...columns,
-      [source.droppableId]: copiedItems
+      [source.droppableId]: copiedItems,
     })
   }
 
   // Post a message back to the extension so we can move the task in the index
   vscode.postMessage({
-    command: 'kanbn.move',
+    command: "kanbn.move",
     task: removed.id,
     columnName: destination.droppableId,
-    position: destination.index
+    position: destination.index,
   })
 }
 
 // Check if a task's due date is in the past
 const checkOverdue = (task: KanbnTask): boolean => {
   if (task.metadata.due !== undefined) {
-    return Date.parse(task.metadata.due) < (new Date()).getTime()
+    return Date.parse(task.metadata.due) < new Date().getTime()
   }
   return false
 }
 
 // A list of property names that can be filtered
-const filterProperties = [
-  'description',
-  'assigned',
-  'tag',
-  'relation',
-  'subtask',
-  'comment'
-]
+const filterProperties = ["description", "assigned", "tag", "relation", "subtask", "comment"]
 
 // Filter tasks according to the filter string
 const filterTask = (
   task: KanbnTask,
   taskFilter: string,
-  customFields: Array<{ name: string, type: 'boolean' | 'date' | 'number' | 'string' }>
+  customFields: Array<{ name: string; type: "boolean" | "date" | "number" | "string" }>
 ): boolean => {
   let result = true
-  const customFieldMap = Object.fromEntries(customFields.map(customField => [
-    customField.name.toLowerCase(),
-    customField
-  ]))
+  const customFieldMap = Object.fromEntries(
+    customFields.map((customField) => [customField.name.toLowerCase(), customField])
+  )
   const customFieldNames = Object.keys(customFieldMap)
-  taskFilter.split(' ').forEach(f => {
-    const parts = f.split(':').map(p => p.toLowerCase())
+  taskFilter.split(" ").forEach((f) => {
+    const parts = f.split(":").map((p) => p.toLowerCase())
 
     // This filter section doesn't contain a property name
     if (parts.length === 1) {
       // Filter for overdue tasks
-      if (parts[0] === 'overdue') {
+      if (parts[0] === "overdue") {
         if (!checkOverdue(task)) {
           result = false
         }
@@ -102,10 +93,13 @@ const filterTask = (
       }
 
       // Filter boolean custom fields
-      if (customFieldNames.includes(parts[0]) && customFieldMap[parts[0]].type === 'boolean') {
+      if (customFieldNames.includes(parts[0]) && customFieldMap[parts[0]].type === "boolean") {
         if (
           !(customFieldMap[parts[0]].name in task.metadata) ||
-          !(task.metadata[customFieldMap[parts[0]].name] === null || task.metadata[customFieldMap[parts[0]].name] === undefined)
+          !(
+            task.metadata[customFieldMap[parts[0]].name] === null ||
+            task.metadata[customFieldMap[parts[0]].name] === undefined
+          )
         ) {
           result = false
         }
@@ -124,39 +118,40 @@ const filterTask = (
 
     // If this filter section contains a property name and value, check the value against the property
     if (
-      parts.length === 2 && (
-        filterProperties.includes(parts[0]) ||
-        customFieldNames.includes(parts[0])
-      )
+      parts.length === 2 &&
+      (filterProperties.includes(parts[0]) || customFieldNames.includes(parts[0]))
     ) {
       // Fetch the value to filter by
-      let propertyValue = ''
+      let propertyValue = ""
       switch (parts[0]) {
-        case 'description':
-          propertyValue = [
-            task.description,
-            ...task.subTasks.map(subTask => subTask.text)
-          ].join(' ')
+        case "description":
+          propertyValue = [task.description, ...task.subTasks.map((subTask) => subTask.text)].join(
+            " "
+          )
           break
-        case 'assigned':
-          propertyValue = task.metadata.assigned ?? ''
+        case "assigned":
+          propertyValue = task.metadata.assigned ?? ""
           break
-        case 'tag':
-          propertyValue = (task.metadata.tags ?? []).join(' ')
+        case "tag":
+          propertyValue = (task.metadata.tags ?? []).join(" ")
           break
-        case 'relation':
-          propertyValue = task.relations.map(relation => `${relation.type} ${relation.task}`).join(' ')
+        case "relation":
+          propertyValue = task.relations
+            .map((relation) => `${relation.type} ${relation.task}`)
+            .join(" ")
           break
-        case 'subtask':
-          propertyValue = task.subTasks.map(subTask => `${subTask.text}`).join(' ')
+        case "subtask":
+          propertyValue = task.subTasks.map((subTask) => `${subTask.text}`).join(" ")
           break
-        case 'comment':
-          propertyValue = task.comments.map(comment => `${comment.author} ${comment.text}`).join(' ')
+        case "comment":
+          propertyValue = task.comments
+            .map((comment) => `${comment.author} ${comment.text}`)
+            .join(" ")
           break
         default:
           if (
             customFieldNames.includes(parts[0]) &&
-            customFieldMap[parts[0]].type !== 'boolean' &&
+            customFieldMap[parts[0]].type !== "boolean" &&
             customFieldMap[parts[0]].name in task.metadata
           ) {
             propertyValue = `${task.metadata[customFieldMap[parts[0]].name]}`
@@ -173,33 +168,38 @@ const filterTask = (
   return result
 }
 
-function Board (): JSX.Element {
-  const [state, setState] = useState(vscode.getState() ?? {
-    name: '',
-    description: '',
-    columns: {},
-    hiddenColumns: [],
-    startedColumns: [],
-    completedColumns: [],
-    columnSorting: {},
-    customFields: [],
-    dateFormat: '',
-    showBurndownButton: false,
-    showSprintButton: false,
-    currentSprint: null,
-    taskFilter: ''
-  })
+function Board(): JSX.Element {
+  const [state, setState] = useState(
+    vscode.getState() ?? {
+      name: "",
+      description: "",
+      columns: {},
+      hiddenColumns: [],
+      startedColumns: [],
+      completedColumns: [],
+      columnSorting: {},
+      customFields: [],
+      dateFormat: "",
+      showBurndownButton: false,
+      showSprintButton: false,
+      currentSprint: null,
+      taskFilter: "",
+    }
+  )
 
-  const processMessage = useCallback(event => {
+  const processMessage = useCallback((event) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const newState: any = {}
-    const tasks = Object.fromEntries((event.data.tasks ?? []).map(task => [task.id, task]))
+    const tasks = Object.fromEntries((event.data.tasks ?? []).map((task) => [task.id, task]))
 
     newState.name = event.data.index.name
     newState.description = event.data.index.description
     const columns = Object.fromEntries(
       zip(
         Object.keys(event.data.index.columns),
-        Object.values(event.data.index.columns).map(column => (column as string[]).map(taskId => tasks[taskId]))
+        Object.values(event.data.index.columns).map((column) =>
+          (column as string[]).map((taskId) => tasks[taskId])
+        )
       )
     )
     newState.columns = columns
@@ -213,7 +213,7 @@ function Board (): JSX.Element {
 
     // Get current sprint
     let sprint = null
-    if ('sprints' in event.data.index.options && event.data.index.options.sprints.length > 0) {
+    if ("sprints" in event.data.index.options && event.data.index.options.sprints.length > 0) {
       sprint = event.data.index.options.sprints[event.data.index.options.sprints.length - 1]
     }
     newState.currentSprint = sprint
@@ -224,9 +224,9 @@ function Board (): JSX.Element {
   }, [])
 
   useEffect(() => {
-    window.addEventListener('message', processMessage)
+    window.addEventListener("message", processMessage)
     return () => {
-      window.removeEventListener('message', processMessage)
+      window.removeEventListener("message", processMessage)
     }
   }, [])
 
@@ -243,20 +243,20 @@ function Board (): JSX.Element {
 
   // Called when the clear filter button is clicked
   const clearFilters = (e: React.UIEvent<HTMLElement>): void => {
-    (document.querySelector('.kanbn-filter-input') as HTMLInputElement).value = ''
+    ;(document.querySelector(".kanbn-filter-input") as HTMLInputElement).value = ""
     filterTasks(e)
   }
 
   // Called when the filter form is submitted
   const filterTasks = (e: React.UIEvent<HTMLElement>): void => {
     e.preventDefault()
-    setTaskFilter((document.querySelector('.kanbn-filter-input') as HTMLInputElement).value)
+    setTaskFilter((document.querySelector(".kanbn-filter-input") as HTMLInputElement).value)
   }
 
   const taskFilter = state.taskFilter
 
   // Indicate that the board is ready to receive messages and should be updated
-  useEffect(() => vscode.postMessage({ command: 'kanbn.updateMe' }), [])
+  useEffect(() => vscode.postMessage({ command: "kanbn.updateMe" }), [])
   return (
     <>
       <div className="kanbn-header">
@@ -264,10 +264,7 @@ function Board (): JSX.Element {
           <p>{state.name}</p>
           <div className="kanbn-filter">
             <form>
-              <input
-                className="kanbn-filter-input"
-                placeholder="Filter tasks"
-              />
+              <input className="kanbn-filter-input" placeholder="Filter tasks" />
               <button
                 type="submit"
                 className="kanbn-header-button kanbn-header-button-filter"
@@ -276,8 +273,7 @@ function Board (): JSX.Element {
               >
                 <i className="codicon codicon-filter"></i>
               </button>
-              {
-                taskFilter !== '' &&
+              {taskFilter !== "" && (
                 <button
                   type="button"
                   className="kanbn-header-button kanbn-header-button-clear-filter"
@@ -286,76 +282,69 @@ function Board (): JSX.Element {
                 >
                   <i className="codicon codicon-clear-all"></i>
                 </button>
-              }
-              {
-                state.showSprintButton as boolean &&
+              )}
+              {(state.showSprintButton as boolean) && (
                 <button
                   type="button"
                   className="kanbn-header-button kanbn-header-button-sprint"
                   onClick={() => {
                     vscode.postMessage({
-                      command: 'kanbn.sprint'
+                      command: "kanbn.sprint",
                     })
                   }}
                   title={[
-                    'Start a new sprint',
-                    (state.currentSprint != null)
-                      ? `Current sprint:\n  ${state.currentSprint.name}\n  Started ${formatDate(state.currentSprint.start, state.dateFormat)}`
-                      : ''
-                  ].join('\n')}
+                    "Start a new sprint",
+                    state.currentSprint != null
+                      ? `Current sprint:\n  ${state.currentSprint.name}\n  Started ${formatDate(
+                          state.currentSprint.start,
+                          state.dateFormat
+                        )}`
+                      : "",
+                  ].join("\n")}
                 >
                   <i className="codicon codicon-rocket"></i>
-                  {(state.currentSprint != null) ? state.currentSprint.name : 'No sprint'}
+                  {state.currentSprint != null ? state.currentSprint.name : "No sprint"}
                 </button>
-              }
-              {
-                state.showBurndownButton as boolean &&
+              )}
+              {(state.showBurndownButton as boolean) && (
                 <button
                   type="button"
                   className="kanbn-header-button kanbn-header-button-burndown"
                   onClick={() => {
                     vscode.postMessage({
-                      command: 'kanbn.burndown'
+                      command: "kanbn.burndown",
                     })
                   }}
                   title="Open burndown chart"
                 >
                   <i className="codicon codicon-graph"></i>
                 </button>
-              }
+              )}
             </form>
           </div>
         </h1>
-        <p className="kanbn-header-description">
-          {state.description}
-        </p>
+        <p className="kanbn-header-description">{state.description}</p>
       </div>
       <div className="kanbn-board">
-        <DragDropContext
-          onDragEnd={result => onDragEnd(result, state.columns, setColumns)}
-        >
+        <DragDropContext onDragEnd={(result) => onDragEnd(result, state.columns, setColumns)}>
           {Object.entries(state.columns).map(([columnName, column]) => {
             if (state.hiddenColumns.includes(columnName) as boolean) {
               return false
             }
             return (
               <div
-                className={[
-                  'kanbn-column',
-                  `kanbn-column-${paramCase(columnName)}`
-                ].join(' ')}
+                className={["kanbn-column", `kanbn-column-${paramCase(columnName)}`].join(" ")}
                 key={columnName}
               >
                 <h2 className="kanbn-column-name">
-                  {
-                    state.startedColumns.includes(columnName) as boolean &&
+                  {(state.startedColumns.includes(columnName) as boolean) && (
                     <i className="codicon codicon-play"></i>
-                  }
-                  {
-                    state.completedColumns.includes(columnName) as boolean &&
+                  )}
+                  {(state.completedColumns.includes(columnName) as boolean) && (
                     <i className="codicon codicon-check"></i>
-                  }
+                  )}
                   {columnName}
+                  {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                   <span className="kanbn-column-count">{(column as any).length}</span>
                   <button
                     type="button"
@@ -363,8 +352,8 @@ function Board (): JSX.Element {
                     title={`Create task in ${columnName}`}
                     onClick={() => {
                       vscode.postMessage({
-                        command: 'kanbn.addTask',
-                        columnName
+                        command: "kanbn.addTask",
+                        columnName,
                       })
                     }}
                   >
@@ -374,20 +363,23 @@ function Board (): JSX.Element {
                     <button
                       type="button"
                       className={[
-                        'kanbn-column-button',
-                        'kanbn-sort-column-button',
-                        columnIsSorted ? 'kanbn-column-sorted' : null
-                      ].filter(i => i).join(' ')}
-                      title={`Sort ${columnName}${columnIsSorted
-                        ? `\nCurrently sorted by:\n${columnSortSettings.map(
-                          sorter => `${sorter.field} (${sorter.order})`
-                        ).join('\n')}`
-                        : ''
+                        "kanbn-column-button",
+                        "kanbn-sort-column-button",
+                        columnIsSorted ? "kanbn-column-sorted" : null,
+                      ]
+                        .filter((i) => i)
+                        .join(" ")}
+                      title={`Sort ${columnName}${
+                        columnIsSorted
+                          ? `\nCurrently sorted by:\n${columnSortSettings
+                              .map((sorter) => `${sorter.field} (${sorter.order})`)
+                              .join("\n")}`
+                          : ""
                       }`}
                       onClick={() => {
                         vscode.postMessage({
-                          command: 'kanbn.sortColumn',
-                          columnName
+                          command: "kanbn.sortColumn",
+                          columnName,
                         })
                       }}
                     >
@@ -403,21 +395,23 @@ function Board (): JSX.Element {
                         <div
                           {...provided.droppableProps}
                           ref={provided.innerRef}
-                          className={[
-                            'kanbn-column-task-list',
-                            isDraggingOver ? 'drag-over' : null
-                          ].filter(i => i).join(' ')}
+                          className={["kanbn-column-task-list", isDraggingOver ? "drag-over" : null]
+                            .filter((i) => i)
+                            .join(" ")}
                         >
+                          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                           {(column as any)
-                            .filter(task => filterTask(task, taskFilter, state.customFields))
-                            .map((task, position) => <TaskItem
-                              key={task.id}
-                              task={task}
-                              columnName={columnName}
-                              customFields={state.customFields}
-                              position={position}
-                              dateFormat={state.dateFormat}
-                            />)}
+                            .filter((task) => filterTask(task, taskFilter, state.customFields))
+                            .map((task, position) => (
+                              <TaskItem
+                                key={task.id}
+                                task={task}
+                                columnName={columnName}
+                                customFields={state.customFields}
+                                position={position}
+                                dateFormat={state.dateFormat}
+                              />
+                            ))}
                           {provided.placeholder}
                         </div>
                       )

@@ -1,15 +1,44 @@
-// See https://go.microsoft.com/fwlink/?LinkId=733558
-// for the documentation about the tasks.json format
 {
   "version": "2.0.0",
   "tasks": [
     {
-      "type": "npm",
-      "script": "build",
-      "isBackground": false,
-      "group": {
-        "kind": "build",
-        "isDefault": true
+      "label": "npm: build:prod",
+      "type": "shell",
+      "command": "npm run build:prod",
+      "problemMatcher": {
+        "owner": "typescript",
+        "fileLocation": ["relative", "${workspaceFolder}"],
+        "pattern": {
+          "regexp": "^(?<file>[^:\\s]+):(?<line>\\d+):(?<column>\\d+):\\s(?<severity>error|warning):\\s(?<message>.*)$",
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "severity": 4,
+          "message": 5
+        }
+      }
+    },
+    {
+      "label": "npm: build:dev",
+      "type": "shell",
+      "command": "npm run build:dev",
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "typescript",
+        "fileLocation": ["relative", "${workspaceFolder}"],
+        "pattern": {
+          "regexp": "^(?<file>[^:\\s]+):(?<line>\\d+):(?<column>\\d+):\\s+(?<severity>error|warning):\\s+(?<message>.*)$",
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "severity": 4,
+          "message": 5
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^\\[\\d+\\]\\sStarting a build",
+          "endsPattern": "^\\[\\d+\\]\\sBuild (succeeded|failed)"
+        }
       }
     }
   ]
