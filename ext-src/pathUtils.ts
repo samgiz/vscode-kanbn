@@ -30,20 +30,3 @@ export function resolveBoardPath(
 
   return path.normalize(path.resolve(basePath, expandedPath))
 }
-
-export async function validateBoardPath(
-  boardPath: string,
-  fs: typeof import('fs')
-): Promise<string> {
-  const kanbnPath = path.join(boardPath, '.kanbn')
-
-  if (!fs.existsSync(boardPath)) {
-    throw new Error(`Board directory does not exist: ${boardPath}`)
-  }
-
-  if (!fs.existsSync(kanbnPath)) {
-    throw new Error(`Not a valid kanbn board (missing .kanbn directory): ${boardPath}`)
-  }
-
-  return boardPath
-}
