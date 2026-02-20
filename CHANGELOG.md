@@ -1,3 +1,8 @@
+# 0.14.2
+
+* Fixed relative path resolution in `additionalBoards` configuration. Relative paths now resolve from the workspace folder instead of VSCode's process working directory. Global settings now require absolute paths or `~/` for home directory.
+* Added support for tilde (`~`) expansion in board paths.
+
 # 0.14.1
 
 Fix to the colour scheme of butttons on light themes: [#25](https://github.com/samgiz/vscode-kanbn/pull/25).

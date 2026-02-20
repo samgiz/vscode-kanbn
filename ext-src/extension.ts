@@ -1,6 +1,7 @@
 import * as vscode from 'vscode'
 import * as path from 'path'
 import KanbnStatusBarItem from './KanbnStatusBarItem'
+import { resolveBoardPath } from './pathUtils'
 import KanbnBoardPanel from './KanbnBoardPanel'
 import KanbnBurndownPanel from './KanbnBurndownPanel'
 import { Kanbn } from '@basementuniverse/kanbn/src/main'
@@ -53,14 +54,26 @@ export async function activate (context: vscode.ExtensionContext): Promise<void>
 
     // Get globally accessible board locations.
     vscode.workspace.getConfiguration('kanbn', null).get<string[]>('additionalBoards')?.forEach(boardLocation => {
-      boardLocations.add(path.resolve(boardLocation))
+      try {
+        boardLocations.add(resolveBoardPath(boardLocation, null))
+      } catch (e) {
+        void vscode.window.showWarningMessage(
+          `Invalid board path "${boardLocation}": ${(e as Error).message}`
+        )
+      }
     })
 
     // Get standard board locations.
     for (const workspaceFolder of vscode.workspace.workspaceFolders ?? []) {
       // Get workspace specific board locations.
       vscode.workspace.getConfiguration('kanbn', workspaceFolder.uri).get<string[]>('additionalBoards')?.forEach(boardLocation => {
-        boardLocations.add(path.resolve(boardLocation))
+        try {
+          boardLocations.add(resolveBoardPath(boardLocation, workspaceFolder.uri.fsPath))
+        } catch (e) {
+          void vscode.window.showWarningMessage(
+            `Invalid board path "${boardLocation}": ${(e as Error).message}`
+          )
+        }
       })
 
       // For backwards compatibility, check the old kanbn directory (which is just the current workspace directory).
