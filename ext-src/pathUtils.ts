@@ -1,12 +1,12 @@
 import * as path from 'path'
 import * as os from 'os'
 
-export function resolveBoardPath(
+export function resolveBoardPath (
   boardPath: string,
   basePath: string | null
 ): string {
-  if (!boardPath || boardPath.trim() === '') {
-    if (basePath) {
+  if (boardPath === '' || boardPath.trim() === '') {
+    if (basePath !== null) {
       return basePath
     }
     throw new Error('Empty path provided')
@@ -24,7 +24,7 @@ export function resolveBoardPath(
   if (basePath === null) {
     throw new Error(
       `Relative path "${boardPath}" cannot be used in global settings. ` +
-      `Use an absolute path or ~/ for home directory.`
+      'Use an absolute path or ~/ for home directory.'
     )
   }
 

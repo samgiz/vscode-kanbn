@@ -52,8 +52,9 @@ export async function activate (context: vscode.ExtensionContext): Promise<void>
   function populateBoardCache (): void {
     const boardLocations = new Set<string>()
 
-    // Get globally accessible board locations.
-    vscode.workspace.getConfiguration('kanbn', null).get<string[]>('additionalBoards')?.forEach(boardLocation => {
+    // Get global (user-level) board locations only.
+    const globalBoards = vscode.workspace.getConfiguration('kanbn', null).inspect<string[]>('additionalBoards')?.globalValue
+    globalBoards?.forEach(boardLocation => {
       try {
         boardLocations.add(resolveBoardPath(boardLocation, null))
       } catch (e) {
@@ -65,8 +66,10 @@ export async function activate (context: vscode.ExtensionContext): Promise<void>
 
     // Get standard board locations.
     for (const workspaceFolder of vscode.workspace.workspaceFolders ?? []) {
-      // Get workspace specific board locations.
-      vscode.workspace.getConfiguration('kanbn', workspaceFolder.uri).get<string[]>('additionalBoards')?.forEach(boardLocation => {
+      // Get workspace-folder-specific board locations only.
+      const inspectResult = vscode.workspace.getConfiguration('kanbn', workspaceFolder.uri).inspect<string[]>('additionalBoards')
+      const workspaceBoards = inspectResult?.workspaceFolderValue ?? inspectResult?.workspaceValue
+      workspaceBoards?.forEach(boardLocation => {
         try {
           boardLocations.add(resolveBoardPath(boardLocation, workspaceFolder.uri.fsPath))
         } catch (e) {
