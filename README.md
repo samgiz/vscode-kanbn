@@ -49,10 +49,33 @@ The following commands are available:
 
 The following configuration settings are available:
 
+- `kanbn.additionalBoards` specify additional kanbn boards in non-standard locations. Relative paths are resolved from the workspace folder. For global settings, use absolute paths or `~/` for home directory.
 - `kanbn.showUninitialisedStatusBarItem` when set to `true`, the status bar item will be displayed in workspaces where Kanbn has not yet been initialised. If set to `false`, Kanbn can still be initialised using the `Kanbn: Initialise Kanbn` command.
 - `kanbn.showTaskNotifications` when set to `true`, notifications will be displayed when a task is created, updated or deleted.
 - `kanbn.showSprintButton` when set to `true`, a 'Start sprint` button will will appear above the Kanbn board. This button will show the current sprint name if a sprint is currently active, and can be used to start a new sprint.
 - `kanbn.showBurndownButton` when set to `true`, a 'Show burndown chart` button will appear above the Kanbn board.
+
+### Additional Boards Examples
+
+In your `.vscode/settings.json`:
+```json
+{
+  "kanbn.additionalBoards": [
+    "../shared-boards/my-project",
+    "./local-boards/team-tasks"
+  ]
+}
+```
+
+In your global User settings:
+```json
+{
+  "kanbn.additionalBoards": [
+    "~/boards/personal",
+    "/absolute/path/to/board"
+  ]
+}
+```
 
 ## Filtering the Kanbn board
 

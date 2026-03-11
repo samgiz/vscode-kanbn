@@ -1,6 +1,7 @@
 import * as vscode from 'vscode'
 import * as path from 'path'
 import KanbnStatusBarItem from './KanbnStatusBarItem'
+import { resolveBoardPath } from './pathUtils'
 import KanbnBoardPanel from './KanbnBoardPanel'
 import KanbnBurndownPanel from './KanbnBurndownPanel'
 import { Kanbn } from '@basementuniverse/kanbn/src/main'
@@ -51,16 +52,31 @@ export async function activate (context: vscode.ExtensionContext): Promise<void>
   function populateBoardCache (): void {
     const boardLocations = new Set<string>()
 
-    // Get globally accessible board locations.
-    vscode.workspace.getConfiguration('kanbn', null).get<string[]>('additionalBoards')?.forEach(boardLocation => {
-      boardLocations.add(path.resolve(boardLocation))
+    // Get global (user-level) board locations only.
+    const globalBoards = vscode.workspace.getConfiguration('kanbn', null).inspect<string[]>('additionalBoards')?.globalValue
+    globalBoards?.forEach(boardLocation => {
+      try {
+        boardLocations.add(resolveBoardPath(null, boardLocation))
+      } catch (e) {
+        void vscode.window.showWarningMessage(
+          `Invalid board path "${boardLocation}": ${(e as Error).message}`
+        )
+      }
     })
 
     // Get standard board locations.
     for (const workspaceFolder of vscode.workspace.workspaceFolders ?? []) {
-      // Get workspace specific board locations.
-      vscode.workspace.getConfiguration('kanbn', workspaceFolder.uri).get<string[]>('additionalBoards')?.forEach(boardLocation => {
-        boardLocations.add(path.resolve(boardLocation))
+      // Get workspace-folder-specific board locations only.
+      const inspectResult = vscode.workspace.getConfiguration('kanbn', workspaceFolder.uri).inspect<string[]>('additionalBoards')
+      const workspaceBoards = inspectResult?.workspaceFolderValue ?? inspectResult?.workspaceValue
+      workspaceBoards?.forEach(boardLocation => {
+        try {
+          boardLocations.add(resolveBoardPath(workspaceFolder.uri.fsPath, boardLocation))
+        } catch (e) {
+          void vscode.window.showWarningMessage(
+            `Invalid board path "${boardLocation}": ${(e as Error).message}`
+          )
+        }
       })
 
       // For backwards compatibility, check the old kanbn directory (which is just the current workspace directory).
