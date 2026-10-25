@@ -117,7 +117,7 @@ export default class KanbnTaskPanel {
     })
 
     if (this._taskId !== null) {
-      this._panel.onDidDispose((e) => { if (this._taskId !== null) taskCache.delete(this._taskId) })
+      this._panel.onDidDispose((e) => { if (this._taskId !== null && taskCache.get(this._taskId) === this) taskCache.delete(this._taskId) })
     }
 
     (this._panel as any).iconPath = {
@@ -160,7 +160,7 @@ export default class KanbnTaskPanel {
                 transformTaskData(message.taskData, message.customFields),
                 message.taskData.column
               )
-              this._panel.onDidDispose((e) => { if (this._taskId !== null) taskCache.delete(this._taskId) })
+              this._panel.onDidDispose((e) => { if (this._taskId !== null && taskCache.get(this._taskId) === this) taskCache.delete(this._taskId) })
               taskCache.set(message.taskData.id, this)
               void this.update()
               if (vscode.workspace.getConfiguration('kanbn').get<boolean>('showTaskNotifications') ?? true) {
@@ -175,7 +175,7 @@ export default class KanbnTaskPanel {
               )
               if (this._taskId !== message.taskData.id) {
                 taskCache.set(message.taskData.id, this)
-                taskCache.delete(this._taskId ?? '')
+                if (taskCache.get(this._taskId ?? '') === this) taskCache.delete(this._taskId ?? '')
                 this._taskId = message.taskData.id
               }
 

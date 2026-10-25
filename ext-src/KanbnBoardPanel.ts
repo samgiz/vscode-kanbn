@@ -28,9 +28,18 @@ export default class KanbnBoardPanel {
   private readonly _workspacePath: string
   private readonly column: vscode.ViewColumn
   private readonly _kanbnFolderName: string
-  private readonly _kanbn: Kanbn
+  private _kanbn: Kanbn
   private readonly _kanbnBurndownPanel: KanbnBurndownPanel
   private _panel: vscode.WebviewPanel | null = null
+
+  // Show another board of the same workspace in this panel. Task panels that are already open stay on the board
+  // they were opened from (they may hold unsaved edits), so they are just forgotten here and a task of the new
+  // board gets its own panel.
+  public setKanbn (kanbn: Kanbn): void {
+    this._kanbn = kanbn
+    this.openedTaskPanels.clear()
+    if (this._panel != null) void this.update()
+  }
 
   public async show (): Promise<void> {
     if (this._panel == null) {
@@ -63,6 +72,10 @@ export default class KanbnBoardPanel {
         throw error
       }
       return
+    }
+    // The panel is titled after the active board.
+    if (this._panel != null) {
+      this._panel.title = index.name
     }
     let tasks: any[]
     try {

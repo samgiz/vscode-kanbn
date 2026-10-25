@@ -9,13 +9,24 @@ export default class KanbnBurndownPanel {
   private readonly column: vscode.ViewColumn
   private readonly _extensionPath: string
   private readonly _workspacePath: string
-  private readonly _kanbn: Kanbn
+  private _kanbn: Kanbn
   private readonly _kanbnFolderName: string
   private _panel: vscode.WebviewPanel | null = null
   private sprintMode: boolean = true
   private sprint: string = ''
   private startDate: string = ''
   private endDate: string = ''
+
+  // Show the burndown chart of another board of the same workspace. The sprint and dates picked for the previous
+  // board don't carry over.
+  public setKanbn (kanbn: Kanbn): void {
+    this._kanbn = kanbn
+    this.sprintMode = true
+    this.sprint = ''
+    this.startDate = ''
+    this.endDate = ''
+    if (this._panel != null) void this.update()
+  }
 
   public show (): void {
     if (this._panel === null) {
@@ -107,6 +118,7 @@ export default class KanbnBurndownPanel {
       return
     }
     if (this._panel != null) {
+      this._panel.title = index.name
       void this._panel.webview.postMessage({
         type: 'burndown',
         index,

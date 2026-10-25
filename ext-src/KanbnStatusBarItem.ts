@@ -21,19 +21,19 @@ export default class KanbnStatusBarItem {
     this._kanbn = kanbn
     if (await this._kanbn.initialised()) {
       const status = (await this._kanbn.status(true)) as {
+        // The title of the board this status is for.
+        name?: string
         tasks: number
         columnTasks: Record<string, number>
         startedTasks?: number
         completedTasks?: number
       }
       const text = [
-        `$(project) ${status.tasks}`
+        `$(project) ${status.name !== undefined ? `${status.name} ` : ''}${status.tasks}`
       ]
-      let tooltip: string[] = []
+      let tooltip: string[] = status.name !== undefined ? [status.name] : []
       if (status.tasks > 0) {
-        tooltip = [
-          `${status.tasks} task${status.tasks === 1 ? '' : 's'}`
-        ]
+        tooltip.push(`${status.tasks} task${status.tasks === 1 ? '' : 's'}`)
         if ('startedTasks' in status && status.startedTasks !== undefined && status.startedTasks > 0) {
           text.push(`$(play) ${status.startedTasks}`)
           tooltip.push(`${status.startedTasks} started task${status.startedTasks === 1 ? '' : 's'}`)
